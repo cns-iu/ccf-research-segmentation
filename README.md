@@ -3,5 +3,5 @@
 Data Preparation: 
 python data_preparation.py
 
-Train
+Train:
 python train_02.py
