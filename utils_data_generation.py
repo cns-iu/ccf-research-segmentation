@@ -52,20 +52,21 @@ def mask2rle(img, shape, small_mask_threshold):
         return ' '.join(str(x) for x in runs)
 
 
-def generate_data(filename, i, img_patch, mask_patch, config):
-    img_save_path = opj(config['OUTPUT_PATH'],filename+f'_img_{i:04d}.jpg')
+def generate_data(filename, i, img_patch, mask_patch, config, g_out):
+    img_save_path = opj(config['OUTPUT_PATH'],filename,f'{i}')
     img_patch = cv2.cvtColor(img_patch, cv2.COLOR_RGB2BGR) #rgb -> bgr
-    cv2.imwrite(img_save_path, img_patch) #bgr -> rgb
+    g_out[i] = img_patch
+    # cv2.imwrite(img_save_path, img_patch) #bgr -> rgb
 
     rle = mask2rle(mask_patch.squeeze(-1), mask_patch.shape[:2], small_mask_threshold=0)
-    rle_save_path = opj(config['OUTPUT_PATH'],filename+f'_rle_{i:04d}')
+    rle_save_path = opj(config['OUTPUT_PATH'],filename,f'rle_{i}')
     with open(rle_save_path, 'wb') as f:
         pickle.dump(rle, f)
 
     num_masked_pixels = mask_patch.sum()
     ratio_masked_area = mask_patch.sum() / (mask_patch.shape[0]*mask_patch.shape[1])
     std_img = img_patch.std()
-    data = [img_save_path.split('/')[-1], rle_save_path.split('/')[-1], 
+    data = [img_save_path.split('/')[-2]+"/"+img_save_path.split('/')[-1], rle_save_path.split('/')[-2]+"/"+rle_save_path.split('/')[-1], 
             num_masked_pixels, ratio_masked_area, std_img]
     return data
     

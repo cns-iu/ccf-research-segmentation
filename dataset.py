@@ -5,6 +5,7 @@ from os.path import join as opj
 from torch.utils.data import Dataset
 from transforms import get_transforms_train, get_transforms_valid
 from utils import rle2mask
+import zarr
 
 class HuBMAPDatasetTrain(Dataset):
     def __init__(self, df, config, mode='train'):
@@ -24,10 +25,15 @@ class HuBMAPDatasetTrain(Dataset):
     
     def __getitem__(self,idx):
         img_path = opj(self.data_paths[idx], self.filename_imgs[idx])
-        img = cv2.imread(img_path)
-        img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-        img = cv2.resize(img, (self.w,self.h), interpolation=cv2.INTER_AREA)
+        path = img_path.rsplit('/',1)
+        print (path)
+        data = zarr.open_group(path[0], mode='r')
+        img = np.array(data[path[1]])
+        print (type(img))
+        # img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+        # img = cv2.resize(img, (self.w,self.h), interpolation=cv2.INTER_AREA)
         rle_path = opj(self.data_paths[idx], self.filename_rles[idx])
+        print (rle_path)
         with open(rle_path,'rb') as f:
             rle = pickle.load(f)
         mask = rle2mask(rle, shape=self.config['resolution'])

@@ -58,8 +58,8 @@ info_df['image_name'] = info_df['image_file'].apply(lambda x:x.split('.')[0])
 patient_mapper = {}
 for (x,y) in info_df[['image_name','patient_number']].values:
     patient_mapper[x] = y
-# data_df['patient_number'] = data_df['filename_img'].apply(lambda x:patient_mapper[x.split('.')[0]]) -- kidney
-data_df['patient_number'] = data_df['filename_img'].apply(lambda x: patient_mapper["_".join(x.split('_')[0:5])] if x.split('_')[0] == "CL" else patient_mapper["_".join(x.split('_')[0:6])])
+data_df['patient_number'] = data_df['filename_img'].apply(lambda x:patient_mapper[x.split('/')[0]]) 
+# data_df['patient_number'] = data_df['filename_img'].apply(lambda x: patient_mapper["_".join(x.split('_')[0:5])] if x.split('_')[0] == "CL" else patient_mapper["_".join(x.split('_')[0:6])])
 
 val_patient_numbers_list = [
     # [67377, 67026], # fold0

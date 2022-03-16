@@ -16,6 +16,7 @@ import pandas as pd
 import os
 from os.path import join as opj
 import time
+import zarr
 
 start_time = time.time()
 
@@ -54,6 +55,8 @@ for cfg in config_list:
                         collate_fn=my_collate_fn)
         img_patches  = []
         mask_patches = []
+        g_out = zarr.group(config['OUTPUT_PATH'] + filename)
+
         for data in tqdm(dl):
             img_patch = data['img']
             mask_patch = data['mask']
@@ -68,8 +71,9 @@ for cfg in config_list:
         img_patches  = img_patches[idxs].reshape(-1,sz,sz,c)
         mask_patches = mask_patches[idxs].reshape(-1,sz,sz,1)
 
-        data = Parallel(n_jobs=-1)(delayed(generate_data)(filename, i, x, y, config) for i,(x,y) in enumerate(tqdm(zip(img_patches, mask_patches)))) 
+        data = Parallel(n_jobs=-1)(delayed(generate_data)(filename, i, x, y, config, g_out) for i,(x,y) in enumerate(tqdm(zip(img_patches, mask_patches)))) 
         data_list.append(data)
+
 
     # save
     data_df = pd.concat([pd.DataFrame(data_list[i]) for i in range(len(data_list))], axis=0).reset_index(drop=True)
